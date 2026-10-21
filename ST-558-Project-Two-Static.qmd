@@ -1,0 +1,28 @@
+---
+title: "Performing Exploratory Data Analysis with a Shiny app"
+author: "Cody Ashby"
+format: html
+editor: visual
+---
+
+# Viral YouTube Videos Data
+
+A description of the data set to be used for this project will go here. The data itself (which comes from my personal device) is read in below:
+
+```{r}
+viral_videos=read.csv("C:/Users/cashb/OneDrive/Documents/ST-558-Project-Two/viral_videos.csv",header=TRUE)
+```
+
+# EDA Trial Run
+
+A "static" version of what will be included in the Shiny app will go here; namely, a handful of numerical and graphical summaries including, but not limited to the following:
+
+- One-way and two-way contingency tables
+- Numerical summaries for quantitative variables at levels of categorical variables
+- At least six distinct plots (e.g. bar charts, histograms, boxplots, scatterplots) with at least four displaying multivariate info via the type of graph as well as one that hasn't been covered formally in class (e.g. qqplots, heatmaps, correlation plots, animations)
+
+Possible categorical variables include whether the video went viral (binary), the video has a thumbnail (binary), the category of the video (15), the upload hour (12 2-hour intervals, may condense to six four-hour, four six-hour, or three eight-hour intervals instead) and the day of upload (7).
+
+Possible numeric variables include the duration of the video in seconds, the number of characters in the title, the number of characters in the description, and the number of tags, views, likes, shares, comments and subscribers.
+
+Although the video ID is included in the list of variables, the EDA will not focus on that variable.
