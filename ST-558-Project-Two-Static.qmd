@@ -26,3 +26,22 @@ Possible categorical variables include whether the video went viral (binary), th
 Possible numeric variables include the duration of the video in seconds, the number of characters in the title, the number of characters in the description, and the number of tags, views, likes, shares, comments and subscribers.
 
 Although the video ID is included in the list of variables, the EDA will not focus on that variable.
+
+Code to convert certain variables to categorical type:
+
+```{r}
+viral_videos$upload_day=factor(viral_videos$upload_day,levels=c(1:7),
+                               labels=c("Mon","Tue","Wed","Thu","Fri","Sat","Sun"),ordered=TRUE)
+viral_videos$upload_hour=factor(viral_videos$upload_hour,levels=c(0:23),
+                                labels=c(rep("Overnight",6),rep("Morning",6),rep("Afternoon",6),rep("Evening",6)))
+viral_videos$viral=factor(viral_videos$viral,levels=c(0,1),labels=c("No","Yes"))
+viral_videos$thumbnail_face=factor(viral_videos$thumbnail_face,levels=c(0,1),labels=c("No","Yes"))
+```
+
+Code to isolate quantitative variables for approximated correlation matrix:
+```{r}
+viral_numvars=viral_videos[,sapply(viral_videos,is.numeric)]
+
+round(cor(viral_numvars),3)
+```
+
