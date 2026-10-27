@@ -15,21 +15,7 @@ library(tidyverse)
 viral_videos=read.csv("C:/Users/cashb/OneDrive/Documents/ST-558-Project-Two/viral_videos.csv",header=TRUE)
 ```
 
-# EDA Trial Run
-
-A "static" version of what will be included in the Shiny app will go here; namely, a handful of numerical and graphical summaries including, but not limited to the following:
-
-- One-way and two-way contingency tables
-- Numerical summaries for quantitative variables at levels of categorical variables
-- At least six distinct plots (e.g. bar charts, histograms, boxplots, scatterplots) with at least four displaying multivariate info via the type of graph as well as one that hasn't been covered formally in class (e.g. qqplots, heatmaps, correlation plots, animations)
-
-Possible categorical variables include whether the video went viral (binary), the video has a thumbnail (binary), the category of the video (15), the upload hour (12 2-hour intervals, may condense to six four-hour, four six-hour, or three eight-hour intervals instead) and the day of upload (7).
-
-Possible numeric variables include the duration of the video in seconds, the number of characters in the title, the number of characters in the description, and the number of tags, views, likes, shares, comments and subscribers.
-
-Although the video ID is included in the list of variables, the EDA will not focus on that variable.
-
-Code to convert certain variables to categorical type:
+Before saving this as an object that can be used for our app, we'll need to make some modifications to a few variables. Namely, we'll convert the binary and time-based variables to a categorical type, as shown below:
 
 ```{r}
 viral_videos$upload_day=factor(viral_videos$upload_day,
@@ -40,13 +26,18 @@ viral_videos$viral=factor(viral_videos$viral,levels=c(0,1),labels=c("No","Yes"))
 viral_videos$thumbnail_face=factor(viral_videos$thumbnail_face,levels=c(0,1),labels=c("No","Yes"))
 ```
 
-Code to isolate quantitative variables for approximated correlation matrix:
+Now, we can save this modified object as an RDS file for usage in the R script for the app.
 
 ```{r}
-viral_numvars=viral_videos[,sapply(viral_videos,is.numeric)]
-
-round(cor(viral_numvars),3)
+#Saving data as an rds file for usage in app script via a function in readr
+write_rds(viral_videos,"C:/Users/cashb/OneDrive/Documents/ST-558-Project-Two/viral_videos.rds")
 ```
+
+# EDA Sample
+
+A tiny taste of what will be included in the app is demonstrated below. We'll mostly focus on contingency tables, grouped numerical summaries based on a categorical variable, and several plots.
+
+## Contingency Tables
 
 Here are some contingency tables for our categorical variables:
 
@@ -56,7 +47,9 @@ table(viral_videos$upload_hour,viral_videos$upload_day)
 table(viral_videos$category,viral_videos$viral)
 ```
 
-We can also get some numerical summaries based on levels from categorical variables:
+## Grouped Numerical Summaries
+
+We can also get some numerical summaries based on levels from categorical variables. Functions from `dplyr` will be used here.
 
 ```{r}
 viral_videos |>
@@ -71,6 +64,16 @@ viral_videos |>
   group_by(upload_hour) |>
   summarize(Average_Shares = mean(shares))
 #aggregate(shares,by=upload_hour,FUN=mean,viral_videos)
+```
+
+## Plots Galore!
+
+Code to isolate quantitative variables for approximated correlation matrix:
+
+```{r}
+viral_numvars=viral_videos[,sapply(viral_videos,is.numeric)]
+
+round(cor(viral_numvars),3)
 ```
 
 A handful of plots, including a possible correlation plot (using `corrplot`) and/or scatterplot matrix (using `GGally`) for the numeric variables, bar charts, boxplots, density plots, histograms, `geom_count()` or `geom_jitter()` for viral vs. hour, dotplot for comments vs. hour...
