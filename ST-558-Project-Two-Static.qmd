@@ -10,6 +10,8 @@ editor: visual
 A description of the data set to be used for this project will go here. The data itself (which comes from my personal device) is read in below:
 
 ```{r}
+library(tidyverse)
+
 viral_videos=read.csv("C:/Users/cashb/OneDrive/Documents/ST-558-Project-Two/viral_videos.csv",header=TRUE)
 ```
 
@@ -30,8 +32,8 @@ Although the video ID is included in the list of variables, the EDA will not foc
 Code to convert certain variables to categorical type:
 
 ```{r}
-viral_videos$upload_day=factor(viral_videos$upload_day,levels=c(1:7),
-                               labels=c("Mon","Tue","Wed","Thu","Fri","Sat","Sun"),ordered=TRUE)
+viral_videos$upload_day=factor(viral_videos$upload_day,
+                               levels=c("Mon","Tue","Wed","Thu","Fri","Sat","Sun"),ordered=TRUE)
 viral_videos$upload_hour=factor(viral_videos$upload_hour,levels=c(0:23),
                                 labels=c(rep("Overnight",6),rep("Morning",6),rep("Afternoon",6),rep("Evening",6)))
 viral_videos$viral=factor(viral_videos$viral,levels=c(0,1),labels=c("No","Yes"))
@@ -39,9 +41,36 @@ viral_videos$thumbnail_face=factor(viral_videos$thumbnail_face,levels=c(0,1),lab
 ```
 
 Code to isolate quantitative variables for approximated correlation matrix:
+
 ```{r}
 viral_numvars=viral_videos[,sapply(viral_videos,is.numeric)]
 
 round(cor(viral_numvars),3)
 ```
 
+Here are some contingency tables for our categorical variables:
+
+```{r}
+table(viral_videos$category)
+table(viral_videos$upload_hour,viral_videos$upload_day)
+table(viral_videos$category,viral_videos$viral)
+```
+
+We can also get some numerical summaries based on levels from categorical variables:
+
+```{r}
+viral_videos |>
+  group_by(category) |>
+  summarize(Average_Views = mean(views))
+#aggregate(viral_videos$views,by=viral_videos$category,FUN=mean,data=viral_videos)
+viral_videos |>
+  group_by(category) |>
+  summarize(Range_of_Subscriber_Count = max(subscriber_count)-min(subscriber_count))
+#aggregate(subscriber_count,by=category,FUN=mean,viral_videos)
+viral_videos |>
+  group_by(upload_hour) |>
+  summarize(Average_Shares = mean(shares))
+#aggregate(shares,by=upload_hour,FUN=mean,viral_videos)
+```
+
+A handful of plots, including a possible correlation plot (using `corrplot`) and/or scatterplot matrix (using `GGally`) for the numeric variables, bar charts, boxplots, density plots, histograms, `geom_count()` or `geom_jitter()` for viral vs. hour, dotplot for comments vs. hour...
