@@ -10,7 +10,9 @@ editor: visual
 A description of the data set to be used for this project will go here. The data itself (which comes from my personal device) is read in below:
 
 ```{r}
+#Install packages below if necessary
 library(tidyverse)
+#library(gt)
 
 viral_videos=read.csv("C:/Users/cashb/OneDrive/Documents/ST-558-Project-Two/viral_videos.csv",header=TRUE)
 ```
@@ -77,3 +79,28 @@ round(cor(viral_numvars),3)
 ```
 
 A handful of plots, including a possible correlation plot (using `corrplot`) and/or scatterplot matrix (using `GGally`) for the numeric variables, bar charts, boxplots, density plots, histograms, `geom_count()` or `geom_jitter()` for viral vs. hour, dotplot for comments vs. hour...
+
+```{r}
+#Histogram for a numerical variable
+ggplot(viral_videos,aes(duration_sec)) +
+  geom_histogram(binwidth=100) +
+  labs(x="Duration (in seconds)",y="Frequency",title="Histogram of Video Length (in Seconds)")
+```
+
+```{r}
+#Circleplot of Time of Day Uploaded by Day of Week Uploaded
+ ggplot(viral_videos,aes(x=upload_hour,y=upload_day)) +
++   geom_count() + 
++   labs(x="Time of Day Uploaded",y="Day of Week Uploaded",title="Circleplot of Videos Uploaded at Time of Day Uploaded by Day of Week Uploaded")
+```
+
+```{r}
+#Bar chart of Videos by Category
+ggplot(viral_videos,aes(category)) +
++   geom_bar() + 
++   labs(x="Category of Video",title="Barplot of Videos by Category")
+```
+
+```{r}
+#Standard Scatterplot coming soon
+```
