@@ -1,1 +1,1 @@
-Information about the Shiny app that performs an EDA on a data set of 12,000 YouTube videos will go here.
+The Shiny app performs selected bits of exploratory data analysis for a synthetic data set of YouTube videos. Note that getting data on actual YouTube videos is a time-consuming and expensive task, not to mention the possibility of getting hacked or any other related misfortunes in the cyber-world. You should be able to subset the data for downloading purposes and do a quick (or not-so-quick) analysis of it.
