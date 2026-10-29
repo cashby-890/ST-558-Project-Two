@@ -12,9 +12,9 @@ A description of the data set to be used for this project will go here. The data
 ```{r}
 #Install packages below if necessary
 library(tidyverse)
-#library(gt)
+library(corrplot)
 
-viral_videos=read.csv("C:/Users/cashb/OneDrive/Documents/ST-558-Project-Two/viral_videos.csv",header=TRUE)
+viral_videos=read.csv("viral_videos.csv",header=TRUE)
 ```
 
 Before saving this as an object that can be used for our app, we'll need to make some modifications to a few variables. Namely, we'll convert the binary and time-based variables to a categorical type, as shown below:
@@ -26,13 +26,18 @@ viral_videos$upload_hour=factor(viral_videos$upload_hour,levels=c(0:23),
                                 labels=c(rep("Overnight",6),rep("Morning",6),rep("Afternoon",6),rep("Evening",6)))
 viral_videos$viral=factor(viral_videos$viral,levels=c(0,1),labels=c("No","Yes"))
 viral_videos$thumbnail_face=factor(viral_videos$thumbnail_face,levels=c(0,1),labels=c("No","Yes"))
+
+#colnames(viral_videos) <- c(
+#  "Video ID", "Category", "Day Uploaded", "Hour Uploaded", "Viral?", "Thumbnail Included?",
+#  "Duration (in seconds)", "Title Length", "Number of Tags", "Description Length", "Number of Subscribers",
+#  "Views", "Likes", "Comments", "Shares")
 ```
 
 Now, we can save this modified object as an RDS file for usage in the R script for the app.
 
 ```{r}
 #Saving data as an rds file for usage in app script via a function in readr
-write_rds(viral_videos,"C:/Users/cashb/OneDrive/Documents/ST-558-Project-Two/viral_videos.rds")
+write_rds(viral_videos,"viral_videos.rds")
 ```
 
 # EDA Sample
@@ -44,9 +49,20 @@ A tiny taste of what will be included in the app is demonstrated below. We'll mo
 Here are some contingency tables for our categorical variables:
 
 ```{r}
-table(viral_videos$category)
-table(viral_videos$upload_hour,viral_videos$upload_day)
-table(viral_videos$category,viral_videos$viral)
+viral_videos |>
+  group_by(category) |>
+  summarize(count=n())
+
+viral_videos |>
+  group_by(upload_hour,upload_day) |>
+  summarize(count=n()) |>
+  pivot_wider(names_from = upload_day,values_from = count)
+
+viral_videos |>
+  group_by(category,viral) |>
+  summarize(count=n()) |>
+  pivot_wider(names_from = viral,values_from = count)
+
 ```
 
 ## Grouped Numerical Summaries
@@ -57,50 +73,70 @@ We can also get some numerical summaries based on levels from categorical variab
 viral_videos |>
   group_by(category) |>
   summarize(Average_Views = mean(views))
-#aggregate(viral_videos$views,by=viral_videos$category,FUN=mean,data=viral_videos)
+
 viral_videos |>
   group_by(category) |>
   summarize(Range_of_Subscriber_Count = max(subscriber_count)-min(subscriber_count))
-#aggregate(subscriber_count,by=category,FUN=mean,viral_videos)
+
 viral_videos |>
   group_by(upload_hour) |>
   summarize(Average_Shares = mean(shares))
-#aggregate(shares,by=upload_hour,FUN=mean,viral_videos)
 ```
 
-## Plots Galore!
-
-Code to isolate quantitative variables for approximated correlation matrix:
+One more thing before we move on to the graphs; let's try making a correlation matrix for some of the numeric variables.
 
 ```{r}
 viral_numvars=viral_videos[,sapply(viral_videos,is.numeric)]
 
-round(cor(viral_numvars),3)
+round(cor(viral_numvars[,5:9]),3)
 ```
 
-A handful of plots, including a possible correlation plot (using `corrplot`) and/or scatterplot matrix (using `GGally`) for the numeric variables, bar charts, boxplots, density plots, histograms, `geom_count()` or `geom_jitter()` for viral vs. hour, dotplot for comments vs. hour...
+## Plots Galore!
+
+A selected variety of plots are described below, ranging from standard histograms and bar charts to a correlation matrix plot for some of the numeric variables.
 
 ```{r}
 #Histogram for a numerical variable
 ggplot(viral_videos,aes(duration_sec)) +
-  geom_histogram(binwidth=100) +
+  geom_histogram(binwidth=50) +
   labs(x="Duration (in seconds)",y="Frequency",title="Histogram of Video Length (in Seconds)")
 ```
 
 ```{r}
-#Circleplot of Time of Day Uploaded by Day of Week Uploaded
+#Bubble plot of Time of Day Uploaded by Day of Week Uploaded
  ggplot(viral_videos,aes(x=upload_hour,y=upload_day)) +
-+   geom_count() + 
-+   labs(x="Time of Day Uploaded",y="Day of Week Uploaded",title="Circleplot of Videos Uploaded at Time of Day Uploaded by Day of Week Uploaded")
+   geom_count() + 
+   labs(x="Time of Day Uploaded",y="Day of Week Uploaded",title="Bubble plot of Videos Uploaded at Time of Day Uploaded by Day of Week Uploaded")
 ```
 
 ```{r}
 #Bar chart of Videos by Category
 ggplot(viral_videos,aes(category)) +
-+   geom_bar() + 
-+   labs(x="Category of Video",title="Barplot of Videos by Category")
+   geom_bar() + 
+   labs(x="Category of Video",title="Barplot of Videos by Category")
 ```
 
 ```{r}
-#Standard Scatterplot coming soon
+#Scatterplot with coloring based on the day of upload
+ggplot(viral_videos,aes(x=log(subscriber_count),y=log(views),color=factor(upload_day))) +
+  geom_point() +
+  labs(x="Log-Transformed Number of Subscribers",y="Log-Transformed Number of Views",color="Day of Upload",
+       title="Log-Transformed Scatterplot of Subscribers vs. Views grouped by Day of Upload")
+```
+
+```{r}
+#Boxplot of log-transformed number of views by upload day
+ggplot(viral_videos,aes(x=upload_day,y=log(views))) +
+  geom_boxplot() + 
+  labs(x="Day of Upload",y="Number of Views on a Log Scale",title="Boxplot of Log-Transformed Number of Views by Day of Upload")
+```
+
+```{r}
+#Correlation plot for selected numerical variables
+corrplot::corrplot.mixed(cor(viral_numvars[,5:9]),
+               upper="number",
+               lower="ellipse",
+               order="hclust",
+               mar=c(0,0,2,0),
+               title="Correlation Plot of Selected Numeric Variables in Viral Video Data")
 ```
